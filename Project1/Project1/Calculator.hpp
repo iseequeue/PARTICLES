@@ -35,29 +35,27 @@ class Calculator
 {
 public:
     Calculator(Calculation* comp) : p(comp) {}
-    ~Calculator() { delete p; }
+    ~Calculator() { }
     void calculate(const std::string& file)
     {
         p->calculate(file);
     }
 private:
-    Calculation* p;
+    std::shared_ptr<Calculation>  p;
 };
 
 
-/*
-int main()
-{
-    Calculator* p = new Calculator(new IDEAL_GAS_Calculation);
 
-    Calculator* q = new Calculator(new LJ_GAS_Calculation);
-
-
-    p->calculate("file.txt");
-
-    q->calculate("qfile.txt");
-
-    delete p;
-    delete q;
-    return 0;
-} */
+//int main()
+//{
+//    auto p = std::make_shared<Calculator>(IDEAL_GAS_Calculation());
+//
+//    auto q = std::make_shared<Calculator>(LJ_GAS_Calculation());
+//
+//
+//    p->calculate("file.txt");
+//
+//    q->calculate("qfile.txt");
+//
+//    return 0;
+//} 
