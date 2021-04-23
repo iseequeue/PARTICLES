@@ -1,6 +1,11 @@
 #include <iostream>
 #include <string>
 
+#include "Calculator.hpp"
+#include "Connection.hpp"
+#include "Particle.hpp"
+#include "System.hpp"
+
 class A
 {
 public:
