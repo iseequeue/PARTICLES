@@ -10,6 +10,7 @@ public:
 	void read_data_until(boost::asio::ip::tcp::socket& socket){}
 
 	Connection(std::string raw_ip_address, unsigned int port = 8000): m_port(port)
+
 	{
 
 		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address_v4::any(), port);
@@ -39,7 +40,6 @@ public:
 	}
 
 private:
-	boost::asio::ip::tcp::endpoint endpoint;
 	std::size_t m_size = 30;
 	std::size_t m_port;
 };
