@@ -94,7 +94,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>C:/boost/stage/lib/libboost_date_time-vc142-mt-gd-x32-1_75.lib; C:/boost/stage/lib/libboost_regex-vc142-mt-gd-x32-1_75.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:/boost/stage/lib/libboost_date_time-vc142-mt-gd-x32-1_75.lib; C:/boost/stage/lib/libboost_regex-vc142-mt-gd-x32-1_75.lib; C:/boost/stage/lib/libboost_thread-vc142-mt-gd-x32-1_75.lib; C:/boost/stage/lib/libboost_chrono-vc142-mt-gd-x32-1_75.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -144,12 +144,14 @@
   <ItemGroup>
     <ClCompile Include="Calculator.cpp" />
     <ClCompile Include="Connection.cpp" />
-    <ClCompile Include="particle.cpp" />
+    <ClCompile Include="Particle.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="System.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Calculator.hpp" />
     <ClInclude Include="Connection.hpp" />
+    <ClInclude Include="Particle.hpp" />
     <ClInclude Include="System.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
