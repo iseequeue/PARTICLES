@@ -1,7 +1,7 @@
-#include <iostream>
-#include <boost/asio.hpp>
+#include "Connection.hpp"
 
-void write_data(boost::asio::ip::tcp::socket& socket, const std::string& name)
+
+void Connection::write_data(boost::asio::ip::tcp::socket& socket, const std::string& name)
 {
 	std::string data;
 
@@ -18,7 +18,7 @@ void write_data(boost::asio::ip::tcp::socket& socket, const std::string& name)
 	std::cout << "write ended\n";
 }
 
-void read_data_until(boost::asio::ip::tcp::socket& socket)
+void Connection::read_data_until(boost::asio::ip::tcp::socket& socket)
 {
 	while (true)
 	{
