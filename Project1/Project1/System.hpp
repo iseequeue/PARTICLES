@@ -6,7 +6,11 @@
 #include <boost/thread/thread.hpp>
 #include <memory>
 
-#include "particle.cpp";
+
+#include "Calculator.hpp"
+#include "Connection.hpp"
+#include "Particle.hpp"
+
 
 class System
 {
@@ -16,15 +20,7 @@ public:
 
 	}
 
-	void ellastic_collision(std::shared_ptr<Particle> p1, std::shared_ptr<Particle> p2) {};
 
-	void unellastic_collision(std::shared_ptr<Particle> p1, std::shared_ptr<Particle> p2) {};
-
-	void calc_motion() {};
-
-	void calc_collisions() {};
-
-	void reduction_phase() {};
 
 
 private:
