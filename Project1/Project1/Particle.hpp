@@ -1,5 +1,5 @@
 #pragma once
-#include <ctime>
+#include <chrono>
 #include <iostream>
 #include <vector>
 #include <memory>
@@ -8,13 +8,16 @@
 class Particle
 {
 public:
+    using clock_t = std::chrono::steady_clock;
+    using time_point_t = clock_t::time_point;
+
     virtual void info() = 0;
     virtual ~Particle() {}
 
 private:
     double m_x, m_y, m_vx, m_vy, m_ax, m_ay;
     double m_mass, m_radius;
-    std::chrono::steady_clock::time_point m_birth;
+    time_point_t m_birth;
 };
 
 class Nitrogen : public Particle
