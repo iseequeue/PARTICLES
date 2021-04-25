@@ -12,7 +12,6 @@ public:
 	Connection(std::string raw_ip_address, unsigned int port = 8000): m_port(port)
 
 	{
-
 		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address_v4::any(), port);
 
 		boost::asio::io_service io_service;
