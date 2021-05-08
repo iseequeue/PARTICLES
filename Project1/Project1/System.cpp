@@ -82,7 +82,7 @@ void System::run()
 			{
 				nlohmann::json j;
 				initialize_json(j, p);
-				fout << std::setw(4) << j;
+				fout << std::setw(4) << j << std::endl;
 			}
 			
 
