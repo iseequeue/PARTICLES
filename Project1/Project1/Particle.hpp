@@ -1,4 +1,6 @@
 #pragma once
+#include <memory>
+
 #include "json.hpp"
 #include <filesystem>
 #include <fstream>
@@ -7,6 +9,17 @@
 #include <locale>
 #include <ostream>
 #include <iostream>
+
+
+enum class Particles
+{
+	Reagent,
+	Product,
+	First,
+	Second,
+};
+
+
 class Particle
 {
 public:
@@ -15,60 +28,83 @@ public:
 		m_x(x), m_y(y), m_dx(dx), m_dy(dy), m_mass(mass), m_radius(radius)
 	{}
 
-	double m_mass;
-	double m_radius;
+	double energy()
+	{
+		return 0.5 * m_mass * (m_dx * m_dx + m_dy * m_dy);
+	}
+
 	double m_x, m_y;
 	double m_dx, m_dy;
+
+	double m_mass;
+	double m_radius;
 
 };
 
 
+class Reagent :public Particle
+{
+public:
 
-//#include <chrono>
-//#include <iostream>
-//#include <vector>
-//#include <memory>
-//
+	Reagent(double x, double y, double dx, double dy, double mass, double radius, Particles name) :
+		Particle(x, y, dx, dy, mass, radius), m_name(name), m_type(Particles::Reagent)
+	{}
+
+	Particles m_type;
+	Particles m_name;
+	
+};
+
+
+class Product :public Particle
+{
+public:
+	Product(double x, double y, double dx, double dy, double mass, double radius, Particles name) :
+		Particle(x, y, dx, dy, mass, radius), m_name(name), m_type(Particles::Reagent), birth(0)
+	{}
+
+	Particles m_type;
+	Particles m_name;
+
+	
+	int birth;
+};
+
+
 //// Class Hierarchy for particles
 //class Particle
 //{
 //public:
-//    using clock_t = std::chrono::steady_clock;
-//    using time_point_t = clock_t::time_point;
 //
 //    virtual void info() = 0;
 //    virtual ~Particle() {}
 //
-//public:
-//    double m_x, m_y, m_vx, m_vy, m_ax, m_ay;
-//    double m_mass, m_radius;
-//    time_point_t m_birth;
 //};
 //
-//class Nitrogen : public Particle
+//class First : public Particle
 //{
 //public:
 //    void info()
 //    {
-//        std::cout << "Nitrogen" << std::endl;
+//        std::cout << "First" << std::endl;
 //    };
 //};
 //
-//class Oxigen : public Particle
+//class Second : public Particle
 //{
 //public:
 //    void info()
 //    {
-//        std::cout << "Oxigen" << std::endl;
+//        std::cout << "Second" << std::endl;
 //    };
 //};
 //
-//class Nitrogen_Oxide : public Particle
+//class Producte : public Particle
 //{
 //public:
 //    void info()
 //    {
-//        std::cout << "Nitrogen_Oxide" << std::endl;
+//        std::cout << "Producte" << std::endl;
 //    };
 //};
 //
@@ -81,42 +117,42 @@ public:
 //    virtual ~Factory() {}
 //};
 //
-//class NitrogenFactory : public Factory
+//class FirstFactory : public Factory
 //{
 //public:
 //    Particle* createParticle()
 //    {
-//        return new Nitrogen;
+//        return new First;
 //    }
 //};
 //
-//class OxigenFactory : public Factory
+//class SecondFactory : public Factory
 //{
 //public:
 //    Particle* createParticle()
 //    {
-//        return new Oxigen;
+//        return new Second;
 //    }
 //};
 //
-//class Nitrogen_OxideFactory : public Factory
+//class ProductFactory : public Factory
 //{
 //public:
 //    Particle* createParticle()
 //    {
-//        return new Nitrogen_Oxide;
+//        return new Producte;
 //    }
 //};
-//
-//
+
+
 //// Создание объектов при помощи фабрик объектов
 ///*
 //int main()
 //{
-//    NitrogenFactory* n_factory = new NitrogenFactory;
-//    // std::shared_ptr<NitrogenFactory> ptr1(n_factory);
-//    OxigenFactory* o_factory = new OxigenFactory;
-//    Nitrogen_OxideFactory* no_factory = new Nitrogen_OxideFactory;
+//    FirstFactory* n_factory = new FirstFactory;
+//    // std::shared_ptr<FirstFactory> ptr1(n_factory);
+//    SecondFactory* o_factory = new SecondFactory;
+//    ProducteFactory* no_factory = new ProducteFactory;
 //
 //    std::vector<Particle*> v;
 //    v.push_back(n_factory->createParticle());

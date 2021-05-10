@@ -36,7 +36,7 @@ public:
 	{
 		m_particle.reserve(m_amount);
 
-		m_particle.push_back(std::make_shared<Particle>(width / 2, height / 2, 0.1, 0.1, 1.0, 6.0));
+		m_particle.push_back(std::make_shared<Reagent>(width / 2, height / 2, 0.1, 0.1, 1.0, 6.0, Particles::First));
 
 		double x, y;
 
@@ -52,8 +52,8 @@ public:
 				x = uidx(mersenne);
 				y = uidy(mersenne);
 			}
-			m_particle.push_back(std::make_shared<Particle>(x, y, uidv(mersenne), uidv(mersenne), 1.0, 6.0));
-			//m_particle.push_back(std::make_shared<Particle>(x, y, 0, 0, 1.0, 6.0));
+
+			m_particle.push_back(std::make_shared<Reagent>( x, y, uidv(mersenne), uidv(mersenne), 1.0, 6.0, Particles::First));
 		}
 
 		if (!font.loadFromFile("arial.ttf"))

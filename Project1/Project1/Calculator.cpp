@@ -1,5 +1,8 @@
 #include "Calculator.hpp"
 
+const double e_activation = 0.9;
+const int period = 20;
+
 
 void Calculation::ellastic_Collide(std::shared_ptr<Particle> p1, std::shared_ptr<Particle> p2)
 {
@@ -39,14 +42,34 @@ void Calculation::non_ellastic_Collide(std::size_t& i, std::size_t& j, std::vect
 			/ (m_particle[i]->m_mass + m_particle[j]->m_mass);
 
 
-		m_particle[i] = std::make_shared<Particle>((m_particle[i]->m_x + m_particle[j]->m_x) / 2, (m_particle[i]->m_y + m_particle[j]->m_y) / 2,
+		m_particle[i] = std::make_shared<Product>((m_particle[i]->m_x + m_particle[j]->m_x) / 2, (m_particle[i]->m_y + m_particle[j]->m_y) / 2,
 			vx, vy, m_particle[i]->m_mass + m_particle[j]->m_mass,
-			std::pow(std::pow(m_particle[i]->m_radius, 3) + std::pow(m_particle[j]->m_radius, 3), 1.0 / 3));
+			std::pow(std::pow(m_particle[i]->m_radius, 3) + std::pow(m_particle[j]->m_radius, 3), 1.0 / 3), Particles::Product);
 		m_particle.erase(std::next(m_particle.begin(), j));
 		j--;
 	}
 }
 
+void Calculation::lindemann(std::size_t& i, std::size_t& j, std::vector<std::shared_ptr<Particle>>& m_particle)
+{
+	auto& p1 = m_particle[i];
+	auto& p2 = m_particle[j];
+
+	auto dist = (p2->m_x - p1->m_x) * (p2->m_x - p1->m_x) + (p2->m_y - p1->m_y) * (p2->m_y - p1->m_y);
+
+	if (dist <= (p1->m_radius + p2->m_radius) * (p1->m_radius + p2->m_radius))
+	{
+		auto vx = (p1->m_mass * p1->m_dx + p2->m_mass * p2->m_dx) / (p1->m_mass + p2->m_mass);
+
+		auto vy = (p1->m_mass * p1->m_dy + p2->m_mass * p2->m_dy) / (p1->m_mass + p2->m_mass);
+		if (std::static_pointer_cast<)
+		if (p1->energy() + p2->energy() - (p1->m_mass + p2->m_mass) * (vx * vx + vy * vy) < e_activation)
+		{
+			ellastic_Collide(p1, p2);
+		}
+	}
+
+}
 
 void IDEAL_GAS_Calculation::iDeal_gas(std::vector<std::shared_ptr<Particle>>& m_particle, std::size_t m_width, std::size_t m_height)
 {
@@ -56,6 +79,13 @@ void IDEAL_GAS_Calculation::iDeal_gas(std::vector<std::shared_ptr<Particle>>& m_
 		{
 			if (i != j)
 			{
+				if (std::static_pointer_cast<Product>(m_particle[i])->m_type == Particles::Reagent &&
+					std::static_pointer_cast<Product>(m_particle[j])->m_type == Particles::Reagent)
+				{
+					ellastic_Collide(m_particle[i], m_particle[j]);
+				}
+
+
 				non_ellastic_Collide(i, j, m_particle);
 				// isCollide(m_particle[i], m_particle[j]);
 			}

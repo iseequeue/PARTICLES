@@ -155,6 +155,7 @@
     <ClInclude Include="json.hpp" />
     <ClInclude Include="Particle.hpp" />
     <ClInclude Include="System.hpp" />
+    <ClInclude Include="ThreadPool.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
