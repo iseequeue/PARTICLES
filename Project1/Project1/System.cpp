@@ -58,15 +58,18 @@ void System::run()
 				sf::CircleShape circle(m_particle[i]->m_radius * 1.0f);
 				circle.setPosition(static_cast<float>(m_particle[i]->m_x - m_particle[i]->m_radius),
 					static_cast<float>(m_particle[i]->m_y - m_particle[i]->m_radius));
-				if (i != 0)
+				if (std::static_pointer_cast<Reagent> (m_particle[i])->m_name == Particles::First)
 				{
 					circle.setFillColor(sf::Color::Blue);
 				}
-				else
+				if (std::static_pointer_cast<Reagent> (m_particle[i])->m_name == Particles::Second)
 				{
 					circle.setFillColor(sf::Color::Magenta);
 				}
-
+				if (std::static_pointer_cast<Product> (m_particle[i])->m_name == Particles::Product)
+				{
+					circle.setFillColor(sf::Color::Black);
+				}
 				m_application.draw(circle);
 
 				field[static_cast<int>(m_particle[i]->m_x / (m_width / m_fraction)) % m_fraction]

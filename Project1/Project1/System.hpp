@@ -16,11 +16,13 @@
 
 void initialize_json(nlohmann::json& j, std::shared_ptr<Particle> p);
 
+
+
 class System
 {
 public:
 
-	System(std::size_t amount = 15, std::size_t fraction = 6, std::size_t width = sf::VideoMode::getDesktopMode().width,
+	System(std::size_t amount = 51, std::size_t fraction = 6, std::size_t width = sf::VideoMode::getDesktopMode().width,
 		std::size_t height = sf::VideoMode::getDesktopMode().height) :
 		m_amount(amount),
 		m_fraction(fraction),
@@ -40,7 +42,7 @@ public:
 
 		double x, y;
 
-		for (auto i = 0U; i < m_amount; i++)
+		for (auto i = 0U; i < m_amount/2; i++)
 		{
 			x = uidx(mersenne);
 			y = uidy(mersenne);
@@ -54,6 +56,21 @@ public:
 			}
 
 			m_particle.push_back(std::make_shared<Reagent>( x, y, uidv(mersenne), uidv(mersenne), 1.0, 6.0, Particles::First));
+		}
+		for (auto i = 0U; i < m_amount / 2; i++)
+		{
+			x = uidx(mersenne);
+			y = uidy(mersenne);
+
+			while ((x - width / 2) * (x - width / 2) +
+				(y - height / 2) * (y - height / 2)
+				<= (m_particle[0]->m_radius + 10.0) * (m_particle[0]->m_radius + 10.0))
+			{
+				x = uidx(mersenne);
+				y = uidy(mersenne);
+			}
+
+			m_particle.push_back(std::make_shared<Reagent>(x, y, uidv(mersenne), uidv(mersenne), 1.0, 6.0, Particles::Second));
 		}
 
 		if (!font.loadFromFile("arial.ttf"))

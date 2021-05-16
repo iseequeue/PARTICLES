@@ -10,6 +10,15 @@
 #include <ostream>
 #include <iostream>
 
+struct Constants
+{
+	double E = 1.0909;
+	std::chrono::microseconds period = static_cast<std::chrono::microseconds>(500000);
+	double r1 = 6.0;
+	double r2 = 6.0;
+	double m1 = 1.0;
+	double m2 = 1.0;
+};
 
 enum class Particles
 {
@@ -59,15 +68,23 @@ public:
 class Product :public Particle
 {
 public:
-	Product(double x, double y, double dx, double dy, double mass, double radius, Particles name) :
-		Particle(x, y, dx, dy, mass, radius), m_name(name), m_type(Particles::Reagent), birth(0)
+	Product(double x, double y, double dx, double dy, double mass, double radius, Particles name, double dx1, double dy1, double dx2, double dy2) :
+		Particle(x, y, dx, dy, mass, radius), m_name(name), m_type(Particles::Reagent), birth(std::chrono::steady_clock::now()), dK(0.0),
+		m_dx1(dx1), m_dy1(dy1), m_dx2(dx2), m_dy2(dy2)
 	{}
 
 	Particles m_type;
 	Particles m_name;
 
-	
-	int birth;
+	std::chrono::steady_clock::time_point birth;
+	double dK;
+
+	double m_dx1;
+	double m_dy1;
+
+	double m_dx2;
+	double m_dy2;
+
 };
 
 
