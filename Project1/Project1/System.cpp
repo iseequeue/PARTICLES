@@ -50,12 +50,11 @@ void System::run()
 				}
 			}
 
-			//lG_gas(m_particle, m_width, m_height);
 			ig.iDeal_gas(m_particle, m_width, m_height);
 
 			for (auto i = 0U; i < m_particle.size(); i++)
 			{
-				sf::CircleShape circle(m_particle[i]->m_radius * 1.0f);
+				sf::CircleShape circle(m_particle[i]->m_radius * 1.0);
 				circle.setPosition(static_cast<float>(m_particle[i]->m_x - m_particle[i]->m_radius),
 					static_cast<float>(m_particle[i]->m_y - m_particle[i]->m_radius));
 				if (std::static_pointer_cast<Reagent> (m_particle[i])->m_name == Particles::First)
@@ -73,7 +72,7 @@ void System::run()
 				m_application.draw(circle);
 
 				field[static_cast<int>(m_particle[i]->m_x / (m_width / m_fraction)) % m_fraction]
-					[static_cast<int>(m_particle[i]->m_y / (m_height / m_fraction)) % m_fraction]++; //added  % m_fraction
+					[static_cast<int>(m_particle[i]->m_y / (m_height / m_fraction)) % m_fraction]++; 
 			}
 			m_application.draw(text);
 			m_application.display();
@@ -86,8 +85,7 @@ void System::run()
 				nlohmann::json j;
 				initialize_json(j, p);
 				fout << std::setw(4) << j << std::endl;
-			}
-			
+			}			
 
 		}
 	}
