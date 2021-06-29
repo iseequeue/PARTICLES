@@ -19,8 +19,8 @@ struct Constants
 	static const inline double m1 = 1.0;
 	static const inline double m2 = 1.0;
 
-	static const inline const double a = 0.001;
-	static const inline const double d = 1e23;
+	static const inline const double a = 0.001; // for LG
+	static const inline const double d = 1e23;  // for LG
 };
 
 enum class Particles
@@ -48,6 +48,14 @@ public:
 		return 0.5 * m_mass * (m_dx * m_dx + m_dy * m_dy);
 	}
 
+	virtual Particles get_type() { return Particles::amount; };
+	virtual Particles get_name() { return Particles::amount; };
+
+	virtual double get_dK() { return 0.0; };
+	virtual void set_dK(double x) {};
+
+	virtual std::chrono::steady_clock::time_point get_birth() { return std::chrono::steady_clock::now(); };
+
 	double m_x, m_y;
 	double m_dx, m_dy;
 
@@ -67,6 +75,15 @@ public:
 
 	Particles m_type;
 	Particles m_name;
+
+	Particles get_type() override
+	{
+		return m_type;
+	}
+	Particles get_name() override
+	{
+		return m_name;
+	}
 	
 };
 
@@ -80,6 +97,20 @@ public:
 
 	Particles m_type;
 	Particles m_name;
+
+	Particles get_type() override
+	{
+		return m_type;
+	}
+	Particles get_name() override
+	{
+		return m_name;
+	}
+
+	double get_dK() override { return dK; };
+	void set_dK(double x) override { dK = x; };
+
+	virtual std::chrono::steady_clock::time_point get_birth() { return birth; };
 
 	std::chrono::steady_clock::time_point birth;
 	double dK;

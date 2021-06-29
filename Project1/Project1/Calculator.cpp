@@ -6,9 +6,9 @@ bool isCollide(std::shared_ptr<Particle> p1, std::shared_ptr<Particle> p2)
 	return d <= (p1->m_radius + p2->m_radius) * (p1->m_radius + p2->m_radius);
 }
 
-double sqr(double ax, double ay, double bx, double by)
+double sqr(double ax, double ay)
 {
-	return (ax - bx) * (ax - bx) + (ay - by) * (ay - by);
+	return ax * ax + ay*ay;
 }
 
 
@@ -17,7 +17,7 @@ void Calculation::ellastic_Collide(std::shared_ptr<Particle> p1, std::shared_ptr
 
 	if (isCollide(p1, p2))
 	{
-		auto d = sqr(p2->m_x, p2->m_y, p1->m_x, p1->m_y); 
+		auto d = sqr(p2->m_x - p1->m_x, p2->m_y - p1->m_y);
 
 		auto v1x = ((p2->m_x - p1->m_x) * p1->m_dx + (p2->m_y - p1->m_y) * p1->m_dy) / d;
 		auto v1y = ((p1->m_y - p2->m_y) * p1->m_dx + (p2->m_x - p1->m_x) * p1->m_dy) / d;
@@ -74,7 +74,7 @@ void Calculation::non_ellastic_Collide(std::size_t& i, std::size_t& j, std::vect
 
 		auto vy = (p1->m_mass * p1->m_dy + p2->m_mass * p2->m_dy) / (p1->m_mass + p2->m_mass);
 
-		double dK = 0.5 * p1->m_mass * p2->m_mass / (p1->m_mass * p2->m_mass) * sqr(p1->m_dx, p1->m_dy, p2->m_dx, p2->m_dy);
+		double dK = 0.5 * p1->m_mass * p2->m_mass / (p1->m_mass + p2->m_mass) * sqr(p1->m_dx - p2->m_dx, p1->m_dy - p2->m_dy);
 
 
 		p1 = std::make_shared<Product>((p1->m_x + p2->m_x) / 2, (p1->m_y + p2->m_y) / 2, vx, vy, p1->m_mass + p2->m_mass,
@@ -82,7 +82,7 @@ void Calculation::non_ellastic_Collide(std::size_t& i, std::size_t& j, std::vect
 
 		m_particle.erase(std::next(m_particle.begin(), j));
 
-		std::static_pointer_cast<Product>(p1)->dK = dK; // ?
+		p1->set_dK(dK);
 
 		j--;
 	}
@@ -90,7 +90,7 @@ void Calculation::non_ellastic_Collide(std::size_t& i, std::size_t& j, std::vect
 
 void boom (std::shared_ptr<Particle> p, int j, std::vector< std::shared_ptr<Particle>> & m_particle)
 {
-	auto v1 = (/*2 * std::static_pointer_cast<Product>(p)->dK +*/ p->m_mass * sqr(p->m_dx, p->m_dy, 0.0, 0.0)) * Constants::m1 * Constants::m2
+	auto v1 = (2 * p->get_dK() + p->m_mass * sqr(p->m_dx, p->m_dy)) * Constants::m1 * Constants::m2
 		/ (Constants::m1 + Constants::m2);
 
 	auto q1 = std::make_shared<Reagent>(p->m_x + Constants::r1 * 1.1, p->m_y + Constants::r1 * 1.1, std::pow(0.5 * v1, 0.5), std::pow(0.5 * v1, 0.5), Constants::m1, Constants::r1, Particles::First);
@@ -113,18 +113,21 @@ void IDEAL_GAS_Calculation::iDeal_gas(std::vector<std::shared_ptr<Particle>>& m_
 			
 			if (i != j)
 			{
-				lg(m_particle[i], m_particle[j]);
+				//lg(m_particle[i], m_particle[j]);
 				auto& p1 = m_particle[i];
 				auto& p2 = m_particle[j];
-				double dK = 0.5 * p1->m_mass * p2->m_mass / (p1->m_mass * p2->m_mass) * sqr(p1->m_dx, p1->m_dy, p2->m_dx, p2->m_dy);
+
+				double dK = 0.5 * sqr(p1->m_dx - p2->m_dx, p1->m_dy - p2->m_dy)* p1->m_mass * p2->m_mass / (p1->m_mass + p2->m_mass);
+
+
 				if (isCollide(p1, p2))
 				{
-					if (std::static_pointer_cast<Reagent>(p1)->m_name == std::static_pointer_cast<Product>(p2)->m_name)
+					if (p1->get_name() == p2->get_name())
 					{
 						ellastic_Collide(p1, p2);
 					}
 
-					if (std::static_pointer_cast<Reagent>(p1)->m_type == Particles::Reagent && std::static_pointer_cast<Product>(p2)->m_name == Particles::Product)
+					if (p1->get_type() == Particles::Reagent && p2->get_name() == Particles::Product)
 					{
 						ellastic_Collide(p1, p2);
 
@@ -135,11 +138,11 @@ void IDEAL_GAS_Calculation::iDeal_gas(std::vector<std::shared_ptr<Particle>>& m_
 						}
 						else
 						{
-							std::static_pointer_cast<Product>(p2)->dK = -1.0;
+							p2->set_dK(-1.0);
 						}
 
 					}
-					if (std::static_pointer_cast<Product>(p1)->m_name == Particles::Product && std::static_pointer_cast<Reagent>(p2)->m_type == Particles::Reagent)
+					if (p1->get_name() == Particles::Product && p2->get_type() == Particles::Reagent)
 					{
 						ellastic_Collide(p1, p2);
 						if (dK > Constants::E)
@@ -148,13 +151,13 @@ void IDEAL_GAS_Calculation::iDeal_gas(std::vector<std::shared_ptr<Particle>>& m_
 						}
 						else
 						{
-							std::static_pointer_cast<Product>(p1)->dK = -1.0;
+							p1->set_dK(-1.0);
 						}
 
 					}
 
-					if (std::static_pointer_cast<Product>(p1)->m_name == Particles::First && std::static_pointer_cast<Product>(p2)->m_name == Particles::Second ||
-						std::static_pointer_cast<Product>(p1)->m_name == Particles::Second && std::static_pointer_cast<Product>(p2)->m_name == Particles::First)
+					if (p1->get_name() == Particles::First && p2->get_name() == Particles::Second ||
+						p1->get_name() == Particles::Second && p2->get_name() == Particles::First)
 					{
 
 
@@ -197,12 +200,12 @@ void IDEAL_GAS_Calculation::iDeal_gas(std::vector<std::shared_ptr<Particle>>& m_
 	std::chrono::steady_clock::time_point time_point = std::chrono::steady_clock::now();
 	for (auto i = 0U; i < m_particle.size(); i++)
 	{
-		if (std::static_pointer_cast<Product>(m_particle[i])->m_name == Particles::Product)
+		if (m_particle[i]->get_name() == Particles::Product)
 		{
-			if (std::chrono::duration_cast<std::chrono::microseconds>(time_point - std::static_pointer_cast<Product>(m_particle[i])->birth) > Constants::period
-				&& std::static_pointer_cast<Product>(m_particle[i])->dK > 0.0)
+			if (std::chrono::duration_cast<std::chrono::microseconds>(time_point - m_particle[i]->get_birth()) > Constants::period
+				&& m_particle[i]->get_dK() > 0.0)
 			{
-				boom(std::static_pointer_cast<Product>(m_particle[i]), i, m_particle);
+				boom(m_particle[i], i, m_particle);
 			}
 		}
 

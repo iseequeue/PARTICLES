@@ -39,7 +39,9 @@ public:
 		m_particle.reserve(m_amount);
 
 		m_particle.push_back(std::make_shared<Reagent>(width / 2, height / 2, 0.1, 0.1, 1.0, 6.0, Particles::First));
+		////m_particle.push_back(std::make_shared<Reagent>(500, 500,  1, 0, 1.0, 6.0, Particles::First));
 
+		////m_particle.push_back(std::make_shared<Reagent>(900, 500, -2, 0, 1.0, 6.0, Particles::Second));
 		double x, y;
 
 		for (auto i = 0U; i < m_amount/2; i++)
@@ -93,7 +95,7 @@ public:
 		double t = 0.0;
 		for (auto p : m_particle)
 			t += 0.5 * (p->m_mass * std::pow(p->m_dx, 2) + std::pow(p->m_dy, 2));
-		return t / m_particle.size();
+		return t/m_particle.size();
 	}
 
 	const std::size_t m_amount;
