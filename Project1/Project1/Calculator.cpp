@@ -106,74 +106,69 @@ void boom (std::shared_ptr<Particle> p, int j, std::vector< std::shared_ptr<Part
 
 void IDEAL_GAS_Calculation::iDeal_gas(std::vector<std::shared_ptr<Particle>>& m_particle, std::size_t m_width, std::size_t m_height)
 {
-	for (auto i = 0U; i < m_particle.size(); i++)
+	for (auto i = 0U; i < m_particle.size() - 1; i++)
 	{
-		for (auto j = i; j < m_particle.size(); j++)
-		{
-			
-			if (i != j)
+		for (auto j = i+1; j < m_particle.size(); j++)
+		{	
+			//lg(m_particle[i], m_particle[j]);
+			auto& p1 = m_particle[i];
+			auto& p2 = m_particle[j];
+
+			double dK = 0.5 * sqr(p1->m_dx - p2->m_dx, p1->m_dy - p2->m_dy)* p1->m_mass * p2->m_mass / (p1->m_mass + p2->m_mass);
+
+
+			if (isCollide(p1, p2))
 			{
-				//lg(m_particle[i], m_particle[j]);
-				auto& p1 = m_particle[i];
-				auto& p2 = m_particle[j];
-
-				double dK = 0.5 * sqr(p1->m_dx - p2->m_dx, p1->m_dy - p2->m_dy)* p1->m_mass * p2->m_mass / (p1->m_mass + p2->m_mass);
-
-
-				if (isCollide(p1, p2))
+				if (p1->get_name() == p2->get_name())
 				{
-					if (p1->get_name() == p2->get_name())
-					{
-						ellastic_Collide(p1, p2);
-					}
-
-					if (p1->get_type() == Particles::Reagent && p2->get_name() == Particles::Product)
-					{
-						ellastic_Collide(p1, p2);
-
-						if (dK > Constants::E)
-						{
-							boom(p2, j, m_particle);
-							
-						}
-						else
-						{
-							p2->set_dK(-1.0);
-						}
-
-					}
-					if (p1->get_name() == Particles::Product && p2->get_type() == Particles::Reagent)
-					{
-						ellastic_Collide(p1, p2);
-						if (dK > Constants::E)
-						{
-							boom(p1, i, m_particle);
-						}
-						else
-						{
-							p1->set_dK(-1.0);
-						}
-
-					}
-
-					if (p1->get_name() == Particles::First && p2->get_name() == Particles::Second ||
-						p1->get_name() == Particles::Second && p2->get_name() == Particles::First)
-					{
-
-
-						if (dK > Constants::E)
-						{
-							non_ellastic_Collide(i, j, m_particle);
-						}
-						else
-						{
-							ellastic_Collide(p1, p2);
-						}
-
-					}
+					ellastic_Collide(p1, p2);
 				}
-		
-			}
+
+				if (p1->get_type() == Particles::Reagent && p2->get_name() == Particles::Product)
+				{
+					ellastic_Collide(p1, p2);
+
+					if (dK > Constants::E)
+					{
+						boom(p2, j, m_particle);
+							
+					}
+					else
+					{
+						p2->set_dK(-1.0);
+					}
+
+				}
+				if (p1->get_name() == Particles::Product && p2->get_type() == Particles::Reagent)
+				{
+					ellastic_Collide(p1, p2);
+					if (dK > Constants::E)
+					{
+						boom(p1, i, m_particle);
+					}
+					else
+					{
+						p1->set_dK(-1.0);
+					}
+
+				}
+
+				if (p1->get_name() == Particles::First && p2->get_name() == Particles::Second ||
+					p1->get_name() == Particles::Second && p2->get_name() == Particles::First)
+				{
+
+
+					if (dK > Constants::E)
+					{
+						non_ellastic_Collide(i, j, m_particle);
+					}
+					else
+					{
+						ellastic_Collide(p1, p2);
+					}
+
+				}
+			}			
 		}
 	}
 	

@@ -57,15 +57,15 @@ void System::run()
 				sf::CircleShape circle(m_particle[i]->m_radius * 1.0);
 				circle.setPosition(static_cast<float>(m_particle[i]->m_x - m_particle[i]->m_radius),
 					static_cast<float>(m_particle[i]->m_y - m_particle[i]->m_radius));
-				if (std::static_pointer_cast<Reagent> (m_particle[i])->m_name == Particles::First)
+				if (m_particle[i]->get_name() == Particles::First)
 				{
 					circle.setFillColor(sf::Color::Blue);
 				}
-				if (std::static_pointer_cast<Reagent> (m_particle[i])->m_name == Particles::Second)
+				if (m_particle[i]->get_name() == Particles::Second)
 				{
 					circle.setFillColor(sf::Color::Magenta);
 				}
-				if (std::static_pointer_cast<Product> (m_particle[i])->m_name == Particles::Product)
+				if (m_particle[i]->get_name() == Particles::Product)
 				{
 					circle.setFillColor(sf::Color::Black);
 				}
@@ -80,7 +80,7 @@ void System::run()
 			std::filesystem::path path_output = path/"output.txt";
 			std::fstream fout(path_output.string(), std::ios::out);
 
-			for (auto p : m_particle)
+			for (const auto &p : m_particle)
 			{
 				nlohmann::json j;
 				initialize_json(j, p);
