@@ -1,90 +1,76 @@
 #pragma once
-#include <condition_variable>
-#include <functional>
-#include <future>
-#include <vector>
-#include <thread>
-#include <queue>
-
+#include <boost/thread/thread.hpp>
+#include <boost/asio.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <iostream>
 
 class ThreadPool
 {
 public:
-    using Task = std::function<void()>;
-
-    explicit ThreadPool(std::size_t numThreads)
+    ThreadPool(size_t Threads) :
+        io_service(), work(new boost::asio::io_service::work(io_service)), nThreads(Threads), nTasks(0)
     {
-        start(numThreads);
+        for (std::size_t i = 0; i < nThreads; ++i)
+        {
+            threads.create_thread(boost::bind(&boost::asio::io_service::run, &io_service));
+        }
     }
 
     ~ThreadPool()
     {
-        stop();
+        work.reset();
+        io_service.run();
     }
 
-    template<class T>
-    auto enqueue(T task)->std::future<decltype(task())>
+    template<class F>
+    void enqueue(F f)
     {
-        auto wrapper = std::make_shared<std::packaged_task<decltype(task()) ()>>(std::move(task));
-
         {
-            std::unique_lock<std::mutex> lock{ mEventMutex };
-            mTasks.emplace([=] {
-                (*wrapper)();
-                });
+            boost::unique_lock<boost::mutex> lock(mutex_);
+            nTasks++;
         }
 
-        mEventVar.notify_one();
-        return wrapper->get_future();
+        void (ThreadPool:: * ff)(boost::tuple<F>) = &ThreadPool::wrapper<F>;
+
+        io_service.post(boost::bind(ff, this, boost::make_tuple(f)));
     }
+    void wait()
+    {
+        boost::unique_lock<boost::mutex> lock(mutex_);
+        while (nTasks)
+        {
+            cond.wait(lock);
+        }
+    }
+
+    std::size_t nThreads;
+
 
 private:
-    std::vector<std::thread> mThreads;
-
-    std::condition_variable mEventVar;
-
-    std::mutex mEventMutex;
-    bool mStopping = false;
-
-    std::queue<Task> mTasks;
-
-    void start(std::size_t numThreads)
+    template<class F>
+    void wrapper(boost::tuple<F> f)
     {
-        for (auto i = 0u; i < numThreads; ++i)
+        boost::get<0>(f)();
         {
-            mThreads.emplace_back([=] {
-                while (true)
-                {
-                    Task task;
-
-                    {
-                        std::unique_lock<std::mutex> lock{ mEventMutex };
-
-                        mEventVar.wait(lock, [=] { return mStopping || !mTasks.empty(); });
-
-                        if (mStopping && mTasks.empty())
-                            break;
-
-                        task = std::move(mTasks.front());
-                        mTasks.pop();
-                    }
-
-                    task();
-                }
-                });
+            boost::unique_lock<boost::mutex> lock(mutex_);
+            nTasks--;
+            cond.notify_one();
         }
     }
 
-    void stop() noexcept
-    {
-        {
-            std::unique_lock<std::mutex> lock{ mEventMutex };
-            mStopping = true;
-        }
 
-        mEventVar.notify_all();
 
-        for (auto& thread : mThreads)
-            thread.join();
-    }
+    boost::asio::io_service io_service;
+
+    boost::shared_ptr<boost::asio::io_service::work> work;
+
+    boost::thread_group threads;
+
+
+    std::size_t nTasks;
+    boost::mutex mutex_;
+    boost::condition_variable cond;
 };
+
+
+

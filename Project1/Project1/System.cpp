@@ -47,6 +47,8 @@ void System::run()
 					m_application.draw(rectangle);
 
 					field[i][j] = 0;
+					temperatures[i][j] = 0.0;
+					membership[i][j] = { 0,0,0 };
 				}
 			}
 
@@ -85,7 +87,9 @@ void System::run()
 				nlohmann::json j;
 				initialize_json(j, p);
 				fout << std::setw(4) << j << std::endl;
-			}			
+			}	
+
+			recession();
 
 		}
 	}

@@ -108,7 +108,7 @@ void IDEAL_GAS_Calculation::iDeal_gas(std::vector<std::shared_ptr<Particle>>& m_
 {
 	for (auto i = 0U; i < m_particle.size() - 1; i++)
 	{
-		for (auto j = i+1; j < m_particle.size(); j++)
+		for (auto j = i + 1; j < m_particle.size(); j++)
 		{	
 			//lg(m_particle[i], m_particle[j]);
 			auto& p1 = m_particle[i];

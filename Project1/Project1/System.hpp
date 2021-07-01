@@ -14,6 +14,8 @@
 #include "Particle.hpp"
 #include "Calculator.hpp"
 
+#include "ThreadPool.hpp"
+
 void initialize_json(nlohmann::json& j, std::shared_ptr<Particle> p);
 
 
@@ -33,15 +35,15 @@ public:
 		uidx(0.0, m_width),
 		uidy(0.0, m_height),
 		uidv(-4.0 / 5, 4.0 / 5),
-		field(m_fraction, std::vector<int>(m_fraction, 0))
+		field(m_fraction, std::vector<int>(m_fraction, 0)),
+		temperatures(m_fraction, std::vector<double>(m_fraction, 0.0)),
+		membership(m_fraction, std::vector < std::vector<std::size_t>>(m_fraction, { 0,0,0 }))
 
 	{
 		m_particle.reserve(m_amount);
 
 		m_particle.push_back(std::make_shared<Reagent>(width / 2, height / 2, 0.1, 0.1, 1.0, 6.0, Particles::First));
-		////m_particle.push_back(std::make_shared<Reagent>(500, 500,  1, 0, 1.0, 6.0, Particles::First));
 
-		////m_particle.push_back(std::make_shared<Reagent>(900, 500, -2, 0, 1.0, 6.0, Particles::Second));
 		double x, y;
 
 		for (auto i = 0U; i < m_amount/2; i++)
@@ -93,10 +95,39 @@ public:
 	double temperature()
 	{
 		double t = 0.0;
-		for (auto p : m_particle)
+		for (const auto &p : m_particle)
 			t += 0.5 * (p->m_mass * std::pow(p->m_dx, 2) + std::pow(p->m_dy, 2));
 		return t/m_particle.size();
 	}
+
+	void recession()
+	{
+		auto x = 0U;
+		auto y = 0U;
+		for (const auto& p : m_particle)
+		{
+			x = static_cast<int>(p->m_x / (m_width / m_fraction)) % m_fraction;
+			y = static_cast<int>(p->m_y / (m_height / m_fraction)) % m_fraction;
+			temperatures[x][y]+= 0.5 * (p->m_mass * std::pow(p->m_dx, 2) + std::pow(p->m_dy, 2));
+			
+			switch (p->get_name())
+			{
+			case Particles::First:
+				membership[x][y][0]++;
+				break;
+			case Particles::Second:
+				membership[x][y][1]++;
+				break;
+			case Particles::Product:
+				membership[x][y][2]++;
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	
 
 	const std::size_t m_amount;
 	const std::size_t m_fraction;
@@ -111,6 +142,8 @@ public:
 
 
 	std::vector <std::vector<int>> field;
+	std::vector <std::vector<double>> temperatures;
+	std::vector <std::vector<std::vector<std::size_t>>> membership; // A B C
 
 	std::random_device rd;
 	std::mt19937 mersenne;
