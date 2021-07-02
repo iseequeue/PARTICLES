@@ -37,7 +37,8 @@ public:
 		uidv(-4.0 / 5, 4.0 / 5),
 		field(m_fraction, std::vector<int>(m_fraction, 0)),
 		temperatures(m_fraction, std::vector<double>(m_fraction, 0.0)),
-		membership(m_fraction, std::vector < std::vector<std::size_t>>(m_fraction, { 0,0,0 }))
+		membership(m_fraction, std::vector < std::vector<std::size_t>>(m_fraction, { 0,0,0 })),
+		pool(std::thread::hardware_concurrency())
 
 	{
 		m_particle.reserve(m_amount);
@@ -127,6 +128,10 @@ public:
 		}
 	}
 
+	void calc_fractions();
+	void draw_particles();
+	void record_jsons(std::fstream &fout);
+
 	
 
 	const std::size_t m_amount;
@@ -150,4 +155,6 @@ public:
 	std::uniform_real_distribution<double> uidx;
 	std::uniform_real_distribution<double> uidy;
 	std::uniform_real_distribution<double> uidv;
+
+	ThreadPool pool;
 };

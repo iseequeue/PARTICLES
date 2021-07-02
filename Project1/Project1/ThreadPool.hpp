@@ -2,7 +2,6 @@
 #include <boost/thread/thread.hpp>
 #include <boost/asio.hpp>
 #include <boost/tuple/tuple.hpp>
-#include <iostream>
 
 class ThreadPool
 {
