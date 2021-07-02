@@ -145,8 +145,6 @@
   <ItemGroup>
     <ClCompile Include="Calculator.cpp" />
     <ClCompile Include="Connection.cpp" />
-    <ClCompile Include="math.cpp" />
-    <ClCompile Include="Particle.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="System.cpp" />
   </ItemGroup>
@@ -154,6 +152,7 @@
     <ClInclude Include="Calculator.hpp" />
     <ClInclude Include="Connection.hpp" />
     <ClInclude Include="json.hpp" />
+    <ClInclude Include="mymath.hpp" />
     <ClInclude Include="Particle.hpp" />
     <ClInclude Include="System.hpp" />
     <ClInclude Include="ThreadPool.hpp" />

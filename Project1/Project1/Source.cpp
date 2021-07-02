@@ -1,12 +1,8 @@
 #include "System.hpp"
 
-
-
-
-
 int main()
 {
-	System s;
+	myproject::System s;
 	s.run();
 
 	return EXIT_SUCCESS;
