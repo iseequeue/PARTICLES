@@ -89,12 +89,12 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:/boost;C:\SFML-2.5.1-windows-vc15-32-bit\SFML-2.5.1\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:/boost;C:\SFML-2.5.1-windows-vc15-32-bit\SFML-2.5.1\include;C:\Users\ADM\Desktop\PARTICLES\Project1\Project1\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>C:/boost/stage/lib/libboost_date_time-vc142-mt-gd-x32-1_75.lib;C:/boost/stage/lib/libboost_regex-vc142-mt-gd-x32-1_75.lib;C:/boost/stage/lib/libboost_thread-vc142-mt-gd-x32-1_75.lib;C:/boost/stage/lib/libboost_chrono-vc142-mt-gd-x32-1_75.lib;sfml-graphics-d.lib;sfml-window-d.lib;sfml-audio-d.lib;sfml-system-d.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:/boost/stage/lib/libboost_date_time-vc142-mt-gd-x32-1_75.lib;C:/boost/stage/lib/libboost_regex-vc142-mt-gd-x32-1_75.lib;C:/boost/stage/lib/libboost_thread-vc142-mt-gd-x32-1_75.lib;C:/boost/stage/lib/libboost_chrono-vc142-mt-gd-x32-1_75.lib;sfml-graphics-d.lib;C:/boost/stage/lib/libboost_log-vc142-mt-gd-x32-1_75.lib;C:/boost/stage/lib/libboost_log_setup-vc142-mt-gd-x32-1_75.lib;C:/boost/stage/lib/libboost_atomic-vc142-mt-gd-x32-1_75.lib;C:/boost/stage/lib/libboost_filesystem-vc142-mt-gd-x32-1_75.lib;sfml-window-d.lib;sfml-audio-d.lib;sfml-system-d.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\SFML-2.5.1-windows-vc15-32-bit\SFML-2.5.1\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -145,13 +145,14 @@
   <ItemGroup>
     <ClCompile Include="Calculator.cpp" />
     <ClCompile Include="Connection.cpp" />
+    <ClCompile Include="logger.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="System.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Calculator.hpp" />
     <ClInclude Include="Connection.hpp" />
-    <ClInclude Include="json.hpp" />
+    <ClInclude Include="logger .hpp" />
     <ClInclude Include="mymath.hpp" />
     <ClInclude Include="Particle.hpp" />
     <ClInclude Include="System.hpp" />

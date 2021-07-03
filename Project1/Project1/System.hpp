@@ -17,12 +17,13 @@
 
 #include "ThreadPool.hpp"
 
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 #include <filesystem>
 #include <fstream>
 
 #include <istream>
 #include <locale>
+#include "logger .hpp"
 #include <ostream>
 #include <iostream>
 
@@ -50,8 +51,8 @@ namespace myproject
 			field(boost::extents[fraction][fraction]),
 			temperatures(boost::extents[fraction][fraction]),
 			membership(boost::extents[fraction][fraction]),
-			pool(std::thread::hardware_concurrency()),
-			A(boost::extents[3][4][2])
+			pool(std::thread::hardware_concurrency())
+
 
 		{
 			m_particle.reserve(m_amount);
@@ -113,15 +114,11 @@ namespace myproject
 		sf::Font font;
 		std::vector <std::shared_ptr<Particle>> m_particle;
 	
-		boost::multi_array<double, 3> A;
 
 		boost::multi_array<int, 2> field;
 		boost::multi_array<double, 2> temperatures;
 		boost::multi_array<std::vector<int>, 2> membership; // A B C
 
-		//std::vector <std::vector<int>> field;
-		//std::vector <std::vector<double>> temperatures;
-		//std::vector <std::vector<std::vector<std::size_t>>> membership; // A B C
 
 		std::random_device rd;
 		std::mt19937 mersenne;

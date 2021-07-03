@@ -114,6 +114,7 @@ namespace myproject
 
 	void System::run()
 	{
+		RUN_LOGGER(logger);
 		try
 		{
 			auto path = std::filesystem::current_path();
