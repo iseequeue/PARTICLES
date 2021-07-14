@@ -12,13 +12,12 @@ namespace myproject
 	
 
 
-	void Calculation::ellastic_collide(std::shared_ptr<Particle> p1, std::shared_ptr<Particle> p2)
+	void ellastic_collide(std::shared_ptr<Particle> p1, std::shared_ptr<Particle> p2)
 	{
-
-		if (is_collide(p1, p2))
+		auto d = sqr(p2->m_x - p1->m_x, p2->m_y - p1->m_y);
+		if (is_collide(p1, p2) && d!=0)
 		{
-			auto d = sqr(p2->m_x - p1->m_x, p2->m_y - p1->m_y);
-
+	
 			auto v1x = ((p2->m_x - p1->m_x) * p1->m_dx + (p2->m_y - p1->m_y) * p1->m_dy) / d;
 			auto v1y = ((p1->m_y - p2->m_y) * p1->m_dx + (p2->m_x - p1->m_x) * p1->m_dy) / d;
 
@@ -33,7 +32,7 @@ namespace myproject
 
 			p2->m_dx = (p2->m_x - p1->m_x) * v2x_new + (p1->m_y - p2->m_y) * v2y;
 			p2->m_dy = (p2->m_y - p1->m_y) * v2x_new + (p2->m_x - p1->m_x) * v2y;
-
+			
 		}
 	}
 
@@ -62,7 +61,7 @@ namespace myproject
 	}
 
 
-	void Calculation::non_ellastic_collide(std::size_t& i, std::size_t& j, std::vector<std::shared_ptr<Particle>>& m_particle)
+	void non_ellastic_collide(std::size_t& i, std::size_t& j, std::vector<std::shared_ptr<Particle>> &m_particle)
 	{
 		auto& p1 = m_particle[i];
 		auto& p2 = m_particle[j];
@@ -76,9 +75,16 @@ namespace myproject
 
 			double dK = 0.5 * p1->m_mass * p2->m_mass / (p1->m_mass + p2->m_mass) * sqr(p1->m_dx - p2->m_dx, p1->m_dy - p2->m_dy);
 
-
-			p1 = std::make_shared<Product>((p1->m_x + p2->m_x) / 2, (p1->m_y + p2->m_y) / 2, vx, vy, p1->m_mass + p2->m_mass,
-				std::pow(std::pow(p1->m_radius, 3) + std::pow(p2->m_radius, 3), 1.0 / 3), Particles::Product);
+			if (p1->get_name() == Particles::First)
+			{
+				p1 = std::make_shared<Product>((p1->m_x + p2->m_x) / 2, (p1->m_y + p2->m_y) / 2, vx, vy, p1->m_mass + p2->m_mass,
+					Constants::r3, std::chrono::steady_clock::now(), p1->m_dx, p1->m_dy, p2->m_dx, p2->m_dy);
+			}
+			if (p2->get_name() == Particles::First)
+			{
+				p1 = std::make_shared<Product>((p1->m_x + p2->m_x) / 2, (p1->m_y + p2->m_y) / 2, vx, vy, p1->m_mass + p2->m_mass,
+					Constants::r3, std::chrono::steady_clock::now(), p2->m_dx, p2->m_dy, p1->m_dx, p1->m_dy);
+			}
 
 			m_particle.erase(std::next(m_particle.begin(), j));
 
@@ -88,26 +94,153 @@ namespace myproject
 		}
 	}
 
-	void boom(std::shared_ptr<Particle> p, int j, std::vector< std::shared_ptr<Particle>>& m_particle)
+	void boom(std::shared_ptr<Particle> &p, int j, std::vector< std::shared_ptr<Particle>>& m_particle)
 	{
-		auto v1 = (2 * p->get_dK() + p->m_mass * sqr(p->m_dx, p->m_dy)) * Constants::m1 * Constants::m2
-			/ (Constants::m1 + Constants::m2);
 
-		auto q1 = std::make_shared<Reagent>(p->m_x + Constants::r1 * 1.1, p->m_y + Constants::r1 * 1.1, std::pow(0.5 * v1, 0.5), std::pow(0.5 * v1, 0.5), Constants::m1, Constants::r1, Particles::First);
+		double x1, y1, x2, y2;
 
-		auto q2 = std::make_shared<Reagent>(p->m_x - Constants::r2 * 1.1, p->m_y - Constants::r2 * 1.1, -std::pow(0.5 * v1 * Constants::m2 / Constants::m1, 0.5), -std::pow(0.5 * v1 * Constants::m2 / Constants::m1, 0.5), Constants::m2,
-			Constants::r2, Particles::Second);
+		if (p->get_dx01() >= p->get_dx02())
+		{
+			x1 = p->m_x + p->m_radius;
+			x2 = p->m_x - p->m_radius;
+		}
+		else
+		{
+			x1 = p->m_x - p->m_radius;
+			x2 = p->m_x + p->m_radius;
+		}
 
-		m_particle.erase(std::next(m_particle.begin(), j));
-		m_particle.insert(std::next(m_particle.begin(), j), q2);
-		m_particle.insert(std::next(m_particle.begin(), j), q1);
+		if (p->get_dy01() >= p->get_dy02())
+		{
+			y1 = p->m_y + p->m_radius;
+			y2 = p->m_y - p->m_radius;
+		}
+		else
+		{
+			y1 = p->m_y - p->m_radius;
+			y2 = p->m_y + p->m_radius;
+		}
+
+
+		auto q2 = std::make_shared<Reagent>(x2, y2, p->get_dx02(), p->get_dy02(),
+			Constants::m2, Constants::r2, Particles::Second);
+
+		p = std::make_shared<Reagent>(x1, y1, p->get_dx01(), p->get_dy01(), 
+			Constants::m1, Constants::r1, Particles::First);
+
+		m_particle.push_back(q2);
 	}
 
+	//void internal_for(std::vector<std::shared_ptr<Particle>>& m_particle, std::size_t i, std::size_t N)
+	//{
+	//	for (auto j = i + 1; j < N; j++)
+	//	{
+	//		//lg(m_particle[i], m_particle[j]);
+	//		auto& p1 = m_particle[i];
+	//		auto& p2 = m_particle[j];
+
+	//		double dK = 0.5 * sqr(p1->m_dx - p2->m_dx, p1->m_dy - p2->m_dy) * p1->m_mass * p2->m_mass / (p1->m_mass + p2->m_mass);
+
+
+	//		if (is_collide(p1, p2))
+	//		{
+	//			if (p1->get_name() == p2->get_name())
+	//			{
+	//				ellastic_collide(p1, p2);
+	//			}
+
+	//			if (p1->get_type() == Particles::Reagent && p2->get_name() == Particles::Product)
+	//			{
+	//				ellastic_collide(p1, p2);
+
+	//				if (dK > Constants::E)
+	//				{
+	//					boom(p2, j, m_particle);
+
+	//				}
+	//				else
+	//				{
+	//					p2->set_dK(-1.0);
+	//				}
+
+	//			}
+	//			if (p1->get_name() == Particles::Product && p2->get_type() == Particles::Reagent)
+	//			{
+	//				ellastic_collide(p1, p2);
+	//				if (dK > Constants::E)
+	//				{
+	//					boom(p1, i, m_particle);
+	//				}
+	//				else
+	//				{
+	//					p1->set_dK(-1.0);
+	//				}
+
+	//			}
+
+	//			if (p1->get_name() == Particles::First && p2->get_name() == Particles::Second ||
+	//				p1->get_name() == Particles::Second && p2->get_name() == Particles::First)
+	//			{
+
+
+	//				if (dK > Constants::E)
+	//				{
+	//					non_ellastic_collide(i, j, m_particle);
+	//				}
+	//				else
+	//				{
+	//					ellastic_collide(p1, p2);
+	//				}
+
+	//			}
+	//		}
+	//	}
+
+	//}
+
+	//void shift(std::vector<std::shared_ptr<Particle>>& m_particle, std::size_t i, std::size_t N, std::size_t m_width, std::size_t m_height)
+	//{
+	//	for (auto j = i; j < N; j++)
+	//	{
+	//		m_particle[j]->m_x += m_particle[j]->m_dx;
+
+	//		m_particle[j]->m_y += m_particle[j]->m_dy;
+
+	//		if (m_particle[j]->m_x + m_particle[j]->m_radius > m_width || m_particle[j]->m_x - m_particle[j]->m_radius < 0.0)
+	//		{
+	//			m_particle[j]->m_dx = -m_particle[j]->m_dx;
+	//		}
+
+	//		if (m_particle[j]->m_y + m_particle[j]->m_radius > m_height || m_particle[j]->m_y - m_particle[j]->m_radius < 0.0)
+	//		{
+	//			m_particle[j]->m_dy = -m_particle[j]->m_dy;
+	//		}
+
+	//	}
+	//}
 
 	void IDEAL_GAS_Calculation::ideal_gas(std::vector<std::shared_ptr<Particle>>& m_particle, std::size_t m_width, std::size_t m_height)
 	{
 		for (auto i = 0U; i < m_particle.size() - 1; i++)
 		{
+			//auto length = m_particle.size() - i;
+
+			//const std::size_t min_per_thread = 25;
+			//const std::size_t max_threads = (length + min_per_thread - 1) / min_per_thread;
+
+			//const std::size_t hardware_threads = std::thread::hardware_concurrency();
+
+			//const std::size_t num_threads = std::min(hardware_threads != 0 ? hardware_threads : 2, max_threads);
+
+			//const std::size_t block_size = length / num_threads;
+
+			//for (std::size_t q = 0; q < (num_threads - 1); ++q)
+			//{
+			//	//pool.enqueue(boost::bind(&internal_for, std::ref(m_particle), i + block_size * q, i + block_size * (q + 1)));
+			//	internal_for(m_particle, i + block_size * q, i + block_size * (q + 1));
+			//}
+			///*pool.enqueue(boost::bind(&internal_for, std::ref(m_particle), i + block_size * (num_threads - 1), i + length));
+			//pool.wait();*/
 			for (auto j = i + 1; j < m_particle.size(); j++)
 			{
 				//lg(m_particle[i], m_particle[j]);
@@ -172,36 +305,57 @@ namespace myproject
 			}
 		}
 
+		//auto length = m_particle.size();
+
+		//const std::size_t min_per_thread = 25;
+		//const std::size_t max_threads = (length + min_per_thread - 1) / min_per_thread;
+
+		//const std::size_t hardware_threads = std::thread::hardware_concurrency();
+
+		//const std::size_t num_threads = std::min(hardware_threads != 0 ? hardware_threads : 2, max_threads);
+
+		//const std::size_t block_size = length / num_threads;
 
 
-
-		for (auto i = 0U; i < m_particle.size(); i++)
+		/*for (std::size_t q = 0; q < (num_threads - 1); ++q)
 		{
-			m_particle[i]->m_x += m_particle[i]->m_dx;
 
-			m_particle[i]->m_y += m_particle[i]->m_dy;
-
-			if (m_particle[i]->m_x + m_particle[i]->m_radius > m_width || m_particle[i]->m_x - m_particle[i]->m_radius < 0.0)
-			{
-				m_particle[i]->m_dx = -m_particle[i]->m_dx;
-			}
-
-			if (m_particle[i]->m_y + m_particle[i]->m_radius > m_height || m_particle[i]->m_y - m_particle[i]->m_radius < 0.0)
-			{
-				m_particle[i]->m_dy = -m_particle[i]->m_dy;
-			}
+			pool.enqueue(boost::bind(&shift, std::ref(m_particle), block_size * (q - 1), block_size * q, m_width, m_height));
 
 		}
+		pool.wait();*/
+
+		
+
+
 		std::chrono::steady_clock::time_point time_point = std::chrono::steady_clock::now();
 		for (auto i = 0U; i < m_particle.size(); i++)
 		{
-			if (m_particle[i]->get_name() == Particles::Product)
+			if (m_particle[i]->get_type() == Particles::Product)
 			{
 				if (std::chrono::duration_cast<std::chrono::microseconds>(time_point - m_particle[i]->get_birth()) > Constants::period
 					&& m_particle[i]->get_dK() > 0.0)
 				{
 					boom(m_particle[i], i, m_particle);
 				}
+			}
+
+		}
+
+		for (auto p : m_particle)
+		{
+			p->m_x += p->m_dx;
+
+			p->m_y += p->m_dy;
+
+			if (p->m_x + p->m_radius > m_width || p->m_x - p->m_radius < 0.0)
+			{
+				p->m_dx = -p->m_dx;
+			}
+
+			if (p->m_y + p->m_radius > m_height || p->m_y - p->m_radius < 0.0)
+			{
+				p->m_dy = -p->m_dy;
 			}
 
 		}

@@ -15,7 +15,6 @@
 #include "Particle.hpp"
 #include "Calculator.hpp"
 
-#include "ThreadPool.hpp"
 
 #include <nlohmann/json.hpp>
 #include <filesystem>
@@ -37,9 +36,9 @@ namespace myproject
 	{
 	public:
 
-		explicit System(std::size_t amount = 51, std::size_t fraction = 6, std::size_t width = sf::VideoMode::getDesktopMode().width,
-			std::size_t height = sf::VideoMode::getDesktopMode().height) :
-			m_amount(amount),
+		explicit System(std::size_t fraction = 6, std::size_t width = sf::VideoMode::getDesktopMode().width,
+			std::size_t height = sf::VideoMode::getDesktopMode().height, std::size_t a = 15, std::size_t b = 15, std::size_t c = 0 ) :
+			m_amount(a+b+c),
 			m_fraction(fraction),
 			m_width(width),
 			m_height(height),
@@ -51,24 +50,46 @@ namespace myproject
 			field(boost::extents[fraction][fraction]),
 			temperatures(boost::extents[fraction][fraction]),
 			membership(boost::extents[fraction][fraction]),
-			pool(std::thread::hardware_concurrency())
+			amount_a(a),
+			amount_b(b),
+			amount_c(c)
 
 
 		{
 			m_particle.reserve(m_amount);
-			double x1, y1, x2, y2;
+			double x, y;
 
-			for (auto i = 0U; i < m_amount / 2; i++)
+			/*m_particle.push_back(std::make_shared<Reagent>(900, 500, 2, 0, Constants::m1, Constants::r1, Particles::First));
+
+			m_particle.push_back(std::make_shared<Product>(500, 500, -2, 0, Constants::m1 + Constants::m2, Constants::r3,
+				Particles::Product, std::chrono::steady_clock::now() - Constants::period * 2));*/
+
+			
+
+			for (auto i = 0U; i < amount_a; i++)
 			{
-				x1 = uidx(mersenne);
-				y1 = uidy(mersenne);
+				x = uidx(mersenne);
+				y = uidy(mersenne);
 
-				x2 = uidx(mersenne);
-				y2 = uidy(mersenne);
-
-				m_particle.push_back(std::make_shared<Reagent>(x1, y1, uidv(mersenne), uidv(mersenne), Constants::m1, Constants::r1, Particles::First));
-				m_particle.push_back(std::make_shared<Reagent>(x2, y2, uidv(mersenne), uidv(mersenne), Constants::m2, Constants::r2, Particles::Second));
+				m_particle.push_back(std::make_shared<Reagent>(x, y, uidv(mersenne), uidv(mersenne), Constants::m1, Constants::r1, Particles::First));
 			}
+
+			for (auto i = 0U; i < amount_b; i++)
+			{
+				x = uidx(mersenne);
+				y = uidy(mersenne);
+
+				m_particle.push_back(std::make_shared<Reagent>(x, y, uidv(mersenne), uidv(mersenne), Constants::m2, Constants::r2, Particles::Second));
+			}
+
+			/*for (auto i = 0U; i < amount_c; i++)
+			{
+				x = uidx(mersenne);
+				y = uidy(mersenne);
+
+				m_particle.push_back(std::make_shared<Product>(x, y, uidv(mersenne), uidv(mersenne), Constants::m1 + Constants::m2, Constants::r3,
+				std::chrono::steady_clock::now() - Constants::period*2));
+			}*/
 
 
 			if (!font.loadFromFile("arial.ttf"))
@@ -101,10 +122,13 @@ namespace myproject
 		void draw_particles();
 		void record_jsons(std::fstream& fout) const;
 
-		ThreadPool pool;
 	private:
 		const std::size_t m_amount;
 		const std::size_t m_fraction;
+
+		std::size_t amount_a;
+		std::size_t amount_b;
+		std::size_t amount_c;
 
 		const std::size_t m_width;
 		const std::size_t m_height;

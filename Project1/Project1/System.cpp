@@ -27,37 +27,37 @@ namespace myproject
 	{
 		for (auto i = 0U; i < m_particle.size(); i++)
 		{
-			sf::CircleShape circle(m_particle[i]->m_radius * 1.0);
+			sf::CircleShape circle(m_particle[i]->m_radius * 1.0f);
 			circle.setPosition(static_cast<float>(m_particle[i]->m_x - m_particle[i]->m_radius),
 				static_cast<float>(m_particle[i]->m_y - m_particle[i]->m_radius));
-			if (m_particle[i]->get_name() == Particles::First)
+		
+			switch (m_particle[i]->get_name())
 			{
+			case Particles::First:
 				circle.setFillColor(sf::Color::Blue);
-			}
-			if (m_particle[i]->get_name() == Particles::Second)
-			{
+				break;
+			case Particles::Second:
 				circle.setFillColor(sf::Color::Magenta);
-			}
-			if (m_particle[i]->get_name() == Particles::Product)
-			{
+				break;
+			case Particles::Product:
 				circle.setFillColor(sf::Color::Black);
+				break;
+			default:
+				break;
 			}
-			m_application.draw(circle);
-
-			
+			m_application.draw(circle);			
 		}
 
 	}
 
 	void System::recession()
 	{
-		auto x = 0U;
-		auto y = 0U;
 		for (const auto& p : m_particle)
 		{
-			x = static_cast<int>(p->m_x / (m_width / m_fraction)) % m_fraction;
-			y = static_cast<int>(p->m_y / (m_height / m_fraction)) % m_fraction;
+			auto x = static_cast<unsigned int>(p->m_x / (m_width / m_fraction)) % m_fraction;
+			auto y = static_cast<unsigned int>(p->m_y / (m_height / m_fraction)) % m_fraction;
 			temperatures[x][y] += p->energy();
+			field[x][y]++;
 
 			switch (p->get_name())
 			{
@@ -72,9 +72,7 @@ namespace myproject
 				break;
 			default:
 				break;
-			}
-			field[static_cast<int>(p->m_x / (m_width / m_fraction)) % m_fraction]
-				[static_cast<int>(p->m_y / (m_height / m_fraction)) % m_fraction]++;
+			}			
 		}
 	}
 
