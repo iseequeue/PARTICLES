@@ -58,12 +58,6 @@ namespace myproject
 		{
 			m_particle.reserve(m_amount);
 			double x, y;
-
-			/*m_particle.push_back(std::make_shared<Reagent>(900, 500, 2, 0, Constants::m1, Constants::r1, Particles::First));
-
-			m_particle.push_back(std::make_shared<Product>(500, 500, -2, 0, Constants::m1 + Constants::m2, Constants::r3,
-				Particles::Product, std::chrono::steady_clock::now() - Constants::period * 2));*/
-
 			
 
 			for (auto i = 0U; i < amount_a; i++)
@@ -82,14 +76,6 @@ namespace myproject
 				m_particle.push_back(std::make_shared<Reagent>(x, y, uidv(mersenne), uidv(mersenne), Constants::m2, Constants::r2, Particles::Second));
 			}
 
-			/*for (auto i = 0U; i < amount_c; i++)
-			{
-				x = uidx(mersenne);
-				y = uidy(mersenne);
-
-				m_particle.push_back(std::make_shared<Product>(x, y, uidv(mersenne), uidv(mersenne), Constants::m1 + Constants::m2, Constants::r3,
-				std::chrono::steady_clock::now() - Constants::period*2));
-			}*/
 
 
 			if (!font.loadFromFile("arial.ttf"))

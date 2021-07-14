@@ -61,7 +61,7 @@ namespace myproject
 	}
 
 
-	void non_ellastic_collide(std::size_t& i, std::size_t& j, std::vector<std::shared_ptr<Particle>> &m_particle)
+	void non_ellastic_collide(std::size_t i, std::size_t j, std::vector<std::shared_ptr<Particle>> &m_particle, std::vector<std::size_t> &indexes)
 	{
 		auto& p1 = m_particle[i];
 		auto& p2 = m_particle[j];
@@ -86,11 +86,9 @@ namespace myproject
 					Constants::r3, std::chrono::steady_clock::now(), p2->m_dx, p2->m_dy, p1->m_dx, p1->m_dy);
 			}
 
-			m_particle.erase(std::next(m_particle.begin(), j));
-
+			indexes.push_back(j);
 			p1->set_dK(dK);
 
-			j--;
 		}
 	}
 
@@ -221,6 +219,8 @@ namespace myproject
 
 	void IDEAL_GAS_Calculation::ideal_gas(std::vector<std::shared_ptr<Particle>>& m_particle, std::size_t m_width, std::size_t m_height)
 	{
+		std::vector<size_t> indexes;
+
 		for (auto i = 0U; i < m_particle.size() - 1; i++)
 		{
 			//auto length = m_particle.size() - i;
@@ -241,6 +241,7 @@ namespace myproject
 			//}
 			///*pool.enqueue(boost::bind(&internal_for, std::ref(m_particle), i + block_size * (num_threads - 1), i + length));
 			//pool.wait();*/
+			
 			for (auto j = i + 1; j < m_particle.size(); j++)
 			{
 				//lg(m_particle[i], m_particle[j]);
@@ -252,58 +253,66 @@ namespace myproject
 
 				if (is_collide(p1, p2))
 				{
-					if (p1->get_name() == p2->get_name())
+
+				if (p1->get_name() == Particles::First && p2->get_name() == Particles::Second ||
+					p1->get_name() == Particles::Second && p2->get_name() == Particles::First)
+				{
+
+
+					if (dK > Constants::E)
+					{
+						non_ellastic_collide(i, j, m_particle, indexes);
+					}
+					else
 					{
 						ellastic_collide(p1, p2);
 					}
-
-					if (p1->get_type() == Particles::Reagent && p2->get_name() == Particles::Product)
+				}
+				
+				else 
 					{
 						ellastic_collide(p1, p2);
 
-						if (dK > Constants::E)
+						if (p1->get_type() == Particles::Reagent && p2->get_type() == Particles::Product)
 						{
-							boom(p2, j, m_particle);
+							if (dK < Constants::E)
+							{
+								if (p2->get_dK() > 0.0)
+								{
+									p1->m_dx = std::pow(std::pow(p1->m_dx, 2) + 2 * Constants::E / p1->m_mass, 0.5);
+									p2->set_dK(-1.0);
+								}
+								
+
+							}
+							else
+							{
+								boom(p2, j, m_particle);
+							}
 
 						}
-						else
+						else if (p1->get_type() == Particles::Product && p2->get_type() == Particles::Reagent)
 						{
-							p2->set_dK(-1.0);
+							if (dK < Constants::E)
+							{
+								if (p1->get_dK() > 0.0)
+								{
+									p2->m_dx = std::pow(std::pow(p2->m_dx, 2) + 2 * Constants::E / p2->m_mass, 0.5);
+									p1->set_dK(-1.0);
+								}
+							}
+							else
+							{
+								boom(p1, i, m_particle);
+							}
+
 						}
-
-					}
-					if (p1->get_name() == Particles::Product && p2->get_type() == Particles::Reagent)
-					{
-						ellastic_collide(p1, p2);
-						if (dK > Constants::E)
-						{
-							boom(p1, i, m_particle);
-						}
-						else
-						{
-							p1->set_dK(-1.0);
-						}
-
-					}
-
-					if (p1->get_name() == Particles::First && p2->get_name() == Particles::Second ||
-						p1->get_name() == Particles::Second && p2->get_name() == Particles::First)
-					{
-
-
-						if (dK > Constants::E)
-						{
-							non_ellastic_collide(i, j, m_particle);
-						}
-						else
-						{
-							ellastic_collide(p1, p2);
-						}
-
-					}
+					}					
 				}
 			}
 		}
+
+		erase_elements(m_particle, indexes);
 
 		//auto length = m_particle.size();
 

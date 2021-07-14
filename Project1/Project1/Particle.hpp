@@ -8,7 +8,7 @@ namespace myproject
 	struct Constants
 	{
 		static const inline double E = 0.1909;
-		static const inline std::chrono::microseconds period = static_cast<std::chrono::microseconds>(500000);
+		static const inline std::chrono::microseconds period = static_cast<std::chrono::microseconds>(5000000);
 		static const inline double r1 = 6.0;
 		static const inline double r2 = 6.0;
 		static const inline double m1 = 1.0;
